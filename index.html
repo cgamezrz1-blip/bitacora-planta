@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Bitácora de Operación — F-PP-05</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1F3864">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" href="icon-192.png">
+<style>
+  :root{
+    --navy:#1F3864;
+    --navy-dark:#152548;
+    --paper:#FBF9F4;
+    --panel:#FFFFFF;
+    --line:#D8D2C4;
+    --ink:#28241C;
+    --ink-soft:#6b6455;
+    --amber:#C98A2C;
+    --amber-soft:#FFF2CC;
+    --blue-soft:#D9E2F3;
+    --green:#3F6B4A;
+    --red:#A63A3A;
+    --radius:10px;
+    --content-w:760px;
+    --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0; width:100%; overflow-x:hidden;}
+  body{
+    font-family:var(--sans);
+    background:var(--paper);
+    color:var(--ink);
+    -webkit-tap-highlight-color: transparent;
+    padding-bottom:90px;
+    font-size:clamp(14px, 1.3vw + 0.6rem, 16px);
+  }
+  @media (min-width:900px){ :root{ --content-w:840px; } }
+  @media (min-width:1200px){ :root{ --content-w:940px; } }
+
+  header.app{
+    background:var(--navy);
+    color:#fff;
+    padding:14px 16px 12px;
+    position:sticky; top:0; z-index:20;
+    box-shadow:0 2px 10px rgba(0,0,0,.15);
+  }
+  header.app .title{
+    display:flex; align-items:baseline; justify-content:space-between; gap:8px; flex-wrap:wrap;
+  }
+  header.app h1{
+    font-size:clamp(13px, 1vw + 0.6rem, 16px); letter-spacing:.02em; margin:0; font-weight:700;
+  }
+  header.app .meta{
+    font-size:11px; color:#c9d3e6; font-family:var(--mono);
+  }
+  nav.tabs{
+    display:flex; overflow-x:auto; gap:4px; margin-top:10px; padding-bottom:2px;
+    scrollbar-width:none;
+  }
+  nav.tabs::-webkit-scrollbar{display:none;}
+  .mode-row{ display:flex; justify-content:flex-end; margin-top:8px; }
+  .mode-btn{
+    background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.3); color:#fff;
+    padding:6px 12px; border-radius:999px; font-size:12px; font-weight:700; cursor:pointer;
+  }
+  .mode-btn.active{ background:var(--amber); border-color:var(--amber); color:#2b1c04; }
+  .guide-video-wrap{ margin-bottom:12px; }
+  .guide-video-wrap video{ width:100%; border-radius:10px; background:#000; display:block; }
+  .guide-video-fallback{
+    display:none; border:1.5px dashed var(--line); border-radius:10px; padding:16px;
+    text-align:center; font-size:12.5px; color:var(--ink-soft); background:#fffdf9;
+  }
+  nav.tabs button{
+    flex:0 0 auto;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.18);
+    color:#e7ecf5;
+    padding:7px 12px;
+    border-radius:999px;
+    font-size:12.5px;
+    white-space:nowrap;
+    cursor:pointer;
+  }
+  nav.tabs button.active{
+    background:var(--amber);
+    border-color:var(--amber);
+    color:#2b1c04;
+    font-weight:700;
+  }
+  main{max-width:var(--content-w); margin:0 auto; padding:16px;}
+  section.card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    margin-bottom:16px;
+    overflow:hidden;
+    display:none;
+  }
+  section.card.active{display:block;}
+  section.card > .head{
+    background:var(--navy);
+    color:#fff;
+    padding:10px 14px;
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:.01em;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  section.card > .head small{
+    font-weight:400; color:#c9d3e6; font-family:var(--mono); font-size:10.5px;
+  }
+  .body{padding:14px;}
+  .grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px 12px;
+  }
+  .grid.g3{grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));}
+  .field{display:flex; flex-direction:column; gap:4px; min-width:0;}
+  .field.span2{grid-column:1/-1;}
+  label{
+    font-size:11.5px; color:var(--ink-soft); font-weight:600; letter-spacing:.01em;
+  }
+  input[type=text], input[type=date], input[type=time], input[type=number], textarea, select{
+    font-family:inherit;
+    font-size:14.5px;
+    padding:8px 9px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    background:#fffdf9;
+    color:var(--ink);
+    width:100%;
+  }
+  textarea{resize:vertical; min-height:70px;}
+  input:focus, textarea:focus, select:focus{
+    outline:2px solid var(--amber); outline-offset:0; border-color:var(--amber);
+  }
+  table.tbl{
+    width:100%; border-collapse:collapse; font-size:13px;
+  }
+  table.tbl th{
+    background:var(--blue-soft); color:var(--navy-dark);
+    font-size:10.5px; text-transform:none; letter-spacing:.01em;
+    padding:6px 6px; text-align:center; border:1px solid var(--line);
+    font-weight:700;
+  }
+  table.tbl td{
+    border:1px solid var(--line); padding:4px; vertical-align:middle;
+  }
+  table.tbl td.label-cell{
+    font-size:12px; padding:6px 8px; color:var(--ink);
+  }
+  table.tbl td.label-cell .unit-select{
+    display:block; margin-top:4px; font-size:11px; padding:4px 6px; width:auto; min-width:90px;
+  }
+  table.tbl input{border:none; background:transparent; text-align:center; padding:6px 4px; font-size:13px;}
+  table.tbl input:focus{outline:none; background:var(--amber-soft); border-radius:4px;}
+
+  /* Celdas compactas: Proceso, Vapor, Toma de punto, Producto */
+  table.tbl.compact td.label-cell{ font-size:11px; padding:5px 6px; }
+  table.tbl.compact input{ padding:5px 3px; font-size:12px; }
+  table.tbl.compact th{ font-size:9.5px; padding:5px 4px; }
+
+  .wrap-x{overflow-x:auto;}
+  .yn{display:flex; gap:8px; justify-content:center;}
+  .yn button{
+    width:52px; height:44px; border-radius:8px; border:2px solid var(--line);
+    background:#fff; font-size:14px; font-weight:800; color:var(--ink-soft); cursor:pointer;
+  }
+  .yn button.si.on{background:var(--green); border-color:var(--green); color:#fff;}
+  .yn button.no.on{background:var(--red); border-color:var(--red); color:#fff;}
+  .checkitem{
+    display:flex; align-items:center; gap:10px; padding:10px 4px; border-bottom:1px solid var(--line);
+    font-size:13px;
+  }
+  .checkitem:last-child{border-bottom:none;}
+  .checkitem .num{
+    width:22px; height:22px; border-radius:50%; background:var(--blue-soft); color:var(--navy-dark);
+    font-size:10.5px; font-weight:700; display:flex; align-items:center; justify-content:center; flex:0 0 auto;
+  }
+  .checkitem .txt{flex:1;}
+  .hint{font-size:11px; color:var(--ink-soft); margin-top:2px;}
+  .actions{
+    position:fixed; bottom:0; left:0; right:0;
+    background:var(--panel); border-top:1px solid var(--line);
+    padding:10px 14px; display:flex; gap:8px; justify-content:center; z-index:30;
+  }
+  .actions button{
+    flex:1; max-width:220px;
+    padding:11px 10px; border-radius:8px; border:none; font-size:13px; font-weight:700; cursor:pointer;
+  }
+  .btn-primary{background:var(--amber); color:#2b1c04;}
+  .btn-secondary{background:var(--blue-soft); color:var(--navy-dark);}
+  .btn-ghost{background:transparent; color:var(--ink-soft); border:1px solid var(--line) !important;}
+  .toast{
+    position:fixed; top:14px; left:50%; transform:translateX(-50%);
+    background:var(--navy-dark); color:#fff; padding:9px 16px; border-radius:8px;
+    font-size:13px; z-index:100; box-shadow:0 6px 16px rgba(0,0,0,.25);
+    opacity:0; pointer-events:none; transition:opacity .25s;
+  }
+  .toast.show{opacity:1;}
+  .history-item{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:12px; border:1px solid var(--line); border-radius:8px; margin-bottom:8px; background:#fffdf9;
+  }
+  .history-item .info{font-size:13px;}
+  .history-item .info b{display:block; font-size:13.5px;}
+  .history-item .info span{color:var(--ink-soft); font-size:11.5px; font-family:var(--mono);}
+  .history-item .btns{display:flex; gap:6px;}
+  .history-item .btns button{
+    border:none; border-radius:6px; padding:7px 10px; font-size:12px; font-weight:700; cursor:pointer;
+  }
+  .load-btn{background:var(--blue-soft); color:var(--navy-dark);}
+  .del-btn{background:#f3e4e4; color:var(--red);}
+  .empty-state{
+    text-align:center; padding:40px 20px; color:var(--ink-soft); font-size:13.5px;
+  }
+  .signrow{display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:10px;}
+  .hist-actions{ display:flex; gap:8px; margin-top:6px; flex-wrap:wrap; }
+  .hist-actions button{ flex:1; min-width:140px; padding:10px; border-radius:8px; border:none; font-weight:700; font-size:12.5px; cursor:pointer; }
+  .btn-pdf{background:var(--navy); color:#fff;}
+  .chart-box{ background:#fffdf9; border:1px solid var(--line); border-radius:8px; padding:8px; margin-top:12px; }
+  .chart-box h3{ margin:2px 4px 6px; font-size:12.5px; color:var(--navy-dark); }
+  canvas.chart{ width:100%; height:auto; display:block; }
+  #printArea{display:none;}
+  @media print{
+    body *{visibility:hidden;}
+    #printArea, #printArea *{visibility:visible;}
+    #printArea{ display:block !important; position:absolute; top:0; left:0; width:100%; padding:10px; }
+    #printArea h1{font-size:18px; color:#1F3864;}
+    #printArea table{width:100%; border-collapse:collapse; font-size:12px; margin-bottom:14px;}
+    #printArea th, #printArea td{border:1px solid #999; padding:5px 6px; text-align:left;}
+    #printArea img.chart-img{width:100%; max-width:600px; margin-bottom:16px;}
+  }
+  @media print{
+    header.app, .actions, nav.tabs{display:none !important;}
+    section.card{display:block !important; page-break-inside:avoid; box-shadow:none; border:1px solid #999;}
+    body{padding-bottom:0; background:#fff;}
+  }
+
+  .numpad-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:90;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .numpad-card{
+    background:#1f2937; color:#fff; border-radius:20px; width:100%; max-width:300px;
+    overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,.4);
+  }
+  .numpad-title{ padding:14px 20px 0; font-size:12.5px; color:#9ca3af; }
+  .numpad-display{
+    padding:10px 20px 20px; text-align:right; font-size:38px; font-weight:700;
+    letter-spacing:1px; word-break:break-all; min-height:48px;
+  }
+  .numpad-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:#374151; }
+  .numpad-grid button{
+    background:#1f2937; color:#fff; border:none; padding:20px 0; font-size:22px;
+    font-weight:600; cursor:pointer;
+  }
+  .numpad-grid button:active{ background:#374151; }
+  .numpad-grid button.ghost{ visibility:hidden; }
+  .numpad-actions{ display:flex; justify-content:flex-end; gap:22px; padding:14px 20px; background:#1f2937; }
+  .numpad-actions button{
+    background:none; border:none; color:#60a5fa; font-weight:700; font-size:15px; cursor:pointer; padding:6px 4px;
+  }
+  input.numpad-input{ cursor:pointer; background:#fffdf9; }
+</style>
+</head>
+<body>
+
+<header class="app">
+  <div class="title">
+    <h1>BITÁCORA DE OPERACIÓN DE LA PLANTA</h1>
+    <div class="meta">F-PP-05 · v3</div>
+  </div>
+  <div class="mode-row">
+    <button id="btnGuideToggle" class="mode-btn">📖 Ver guía</button>
+  </div>
+  <nav class="tabs" id="tabs"></nav>
+</header>
+
+<main id="main"></main>
+
+<div class="actions">
+  <button class="btn-ghost" id="btnNew">Nueva</button>
+  <button class="btn-secondary" id="btnHistory">Historial</button>
+  <button class="btn-primary" id="btnSave">Guardar</button>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="printArea"></div>
+
+<script>
+(function(){
+
+/* ---------- Data model ---------- */
+const ROLES = ["Jefe de planta","Hornero","Auxiliar del horno","Clarificador","Moldeador",
+  "Operador 1 de concentrador","Operador 2 de concentrador","Auxiliar de operación","Prensa caña","Auxiliar de calidad"];
+
+const PRELIMINARES = [
+  "Verificación eléctrica (conexiones, tableros, planta de respaldo)",
+  "Disponibilidad de agua (tanque principal y línea de respaldo ≥1 m³, ≥5 psi)",
+  "Limpieza preliminar de componentes en contacto con jugos y mieles",
+  "Purga de tuberías (3-5 min), sin fugas ni taponamientos",
+  "Cebado de la bomba hidráulica (Ficha PO-PP-05)",
+  "Prueba de funcionamiento de los dispensadores de jugo",
+  "Instrumentos y válvulas de seguridad completos y en buen estado",
+  "Sistemas auxiliares: extintor, EPP, seguridad social, botiquín, camilla",
+  "Señalización de la planta en buen estado y correctamente ubicada",
+  "Inspección de chimenea (fisuras, inclinación, especialmente tras sismo)",
+  "Tableros eléctricos completamente aislados"
+];
+
+const PROCESO_VARS = ["Caña procesada","Jugo crudo — grados Brix","Jugo crudo — PH",
+  "Clarificación — grados Brix","Clarificación — PH","Presión de operación de la bomba (psi)"];
+
+const VAPOR_VARS = ["Temperatura de vapor saturado — purga (°C)","Presión de vapor saturado — purga (psi)",
+  "Manómetro de presión de jugo (psi)"];
+
+const PUNTO_VARS = ["Grados Brix","Sedimentación","PH","Peso de bache (kg)"];
+
+const PRODUCTO_ROWS = ["Bloque","Pastilla","Pulverizada","Miel","Cantidad total (kg o cajas)"];
+
+const EQUIPOS = ["C1","C2","C3","C4"];
+
+const STORAGE_KEY = "bitacora_pp05_records";
+
+/* ---------- State ---------- */
+let state = blankState();
+let currentTab = 0;
+let isViewMode = false; // true cuando se está viendo una bitácora guardada (solo lectura)
+
+function blankState(){
+  return {
+    id:null,
+    header:{asociacion:"", fecha:"", lote:"", turno:"", horaInicio:""},
+    personal: ROLES.map(r=>({rol:r, nombre:"", emergencia:""})),
+    preliminares: PRELIMINARES.map(()=>null), // null | 'si' | 'no'
+    autorizacion:{cumple:null, hora:"", obs:""},
+    unidadCana:"kg", // 'kg' | 'carga'
+    proceso: PROCESO_VARS.map(()=>({inicio:"",medio:"",fin:""})),
+    vapor: VAPOR_VARS.map(()=>EQUIPOS.map(()=>"")),
+    punto: PUNTO_VARS.map(()=>EQUIPOS.map(()=>"")),
+    producto: PRODUCTO_ROWS.map(()=>EQUIPOS.map(()=>"")),
+    novedades:"",
+    cierre:{horaFin:"", firmaOperacion:"", vistoBueno:""}
+  };
+}
+
+/* ---------- Storage helpers ---------- */
+function loadAll(){
+  try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
+  catch(e){ return []; }
+}
+function saveAll(list){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+}
+
+/* ---------- Tabs ---------- */
+const TABS = [
+  {id:"header", label:"Datos"},
+  {id:"personal", label:"Personal"},
+  {id:"preliminares", label:"Preliminares"},
+  {id:"autorizacion", label:"Arranque"},
+  {id:"proceso", label:"Proceso"},
+  {id:"vapor", label:"Vapor"},
+  {id:"punto", label:"Toma de punto"},
+  {id:"producto", label:"Producto"},
+  {id:"novedades", label:"Novedades"},
+  {id:"cierre", label:"Cierre"},
+];
+
+const tabsEl = document.getElementById("tabs");
+TABS.forEach((t,i)=>{
+  const b = document.createElement("button");
+  b.textContent = t.label;
+  b.addEventListener("click", ()=>{ currentTab = i; render(); });
+  tabsEl.appendChild(b);
+});
+
+/* ---------- Modo Guía: contenido paso a paso por sección ---------- */
+let guideMode = false;
+
+const GUIDES = {
+  header: [
+    "Anota el nombre de la asociación o planta.",
+    "Verifica que la fecha sea la del día en curso.",
+    "Escribe el número de operación o lote (toca el campo para usar el teclado numérico).",
+    "Registra el turno (por ejemplo: mañana, tarde o noche).",
+    "Anota la hora de inicio apenas comience la operación."
+  ],
+  personal: [
+    "Para cada rol de la lista, escribe el nombre completo de la persona a cargo en este turno.",
+    "Anota un número de contacto de emergencia por cada persona.",
+    "Si un rol no aplica en este turno, puedes dejarlo en blanco."
+  ],
+  preliminares: [
+    "Verifica la instalación eléctrica: conexiones, tableros y planta de respaldo.",
+    "Confirma que haya suficiente agua disponible (tanque principal y línea de respaldo).",
+    "Realiza la limpieza preliminar de todo lo que tenga contacto con jugos y mieles.",
+    "Purga las tuberías por 3 a 5 minutos y revisa que no haya fugas ni taponamientos.",
+    "Ceba la bomba hidráulica siguiendo la ficha PO-PP-05.",
+    "Prueba que los dispensadores de jugo funcionen correctamente.",
+    "Revisa que los instrumentos y válvulas de seguridad estén completos y en buen estado.",
+    "Verifica los sistemas auxiliares: extintor, EPP, seguridad social, botiquín y camilla.",
+    "Confirma que la señalización de la planta esté visible y bien ubicada.",
+    "Inspecciona la chimenea buscando fisuras o inclinación (sobre todo después de un sismo).",
+    "Revisa que los tableros eléctricos estén completamente aislados.",
+    "Marca SÍ o NO en cada punto dentro del apartado de Preliminares, según lo que encuentres."
+  ],
+  autorizacion: [
+    "Solo autoriza el arranque si TODOS los puntos de preliminares quedaron en SÍ.",
+    "Si algo falló, marca NO y anota el hallazgo en observaciones antes de continuar.",
+    "Registra la hora exacta en que se autoriza el arranque."
+  ],
+  proceso: [
+    "Al iniciar la molienda, toma la primera lectura de Brix y PH del jugo crudo.",
+    "Repite la misma lectura a la mitad del proceso (columna 'Medio').",
+    "Toma la lectura final antes de terminar (columna 'Fin').",
+    "Registra la cantidad de caña procesada; elige si la unidad es en kg o por carga.",
+    "Vigila la presión de operación de la bomba durante todo el proceso."
+  ],
+  vapor: [
+    "Revisa la temperatura de vapor saturado en la purga de cada concentrador (C1 a C4).",
+    "Verifica la presión de vapor saturado en la purga de cada equipo.",
+    "Lee el manómetro de presión de jugo en cada concentrador.",
+    "Si algún valor está fuera de lo normal, avisa al jefe de planta antes de seguir."
+  ],
+  punto: [
+    "Toma el punto (grados Brix) en cada concentrador cuando el jugo esté listo.",
+    "Observa y anota la sedimentación.",
+    "Verifica el PH en cada equipo.",
+    "Pesa el bache obtenido y regístralo por concentrador."
+  ],
+  producto: [
+    "Clasifica el producto obtenido por tipo: bloque, pastilla, pulverizada o miel.",
+    "Registra la cantidad de cada tipo, por concentrador.",
+    "Suma y anota la cantidad total en kilogramos o número de cajas."
+  ],
+  novedades: [
+    "Anota cualquier falla, retraso o situación fuera de lo normal durante el turno.",
+    "Sé específico: qué pasó, a qué hora ocurrió y qué se hizo al respecto."
+  ],
+  cierre: [
+    "Registra la hora en que terminó el turno.",
+    "El responsable de operación firma la bitácora.",
+    "El jefe de planta da el visto bueno antes de cerrar y guardar la bitácora."
+  ]
+};
+
+function renderGuideSection(id){
+  const steps = GUIDES[id] || [];
+  const wrap = document.createElement("div");
+
+  const videoWrap = document.createElement("div"); videoWrap.className = "guide-video-wrap";
+  const video = document.createElement("video");
+  video.controls = true; video.playsInline = true; video.preload = "metadata";
+  const source = document.createElement("source");
+  source.src = `videos/${id}.mp4`; source.type = "video/mp4";
+  video.appendChild(source);
+  const fallback = document.createElement("div"); fallback.className = "guide-video-fallback";
+  fallback.textContent = `🎥 Aún no hay video para este paso. Coloca un archivo llamado "${id}.mp4" dentro de la carpeta "videos", junto a este archivo.`;
+  video.addEventListener("error", ()=>{ video.style.display = "none"; fallback.style.display = "block"; });
+  videoWrap.appendChild(video); videoWrap.appendChild(fallback);
+  wrap.appendChild(videoWrap);
+
+  steps.forEach((txt,i)=>{
+    const row = document.createElement("div"); row.className = "checkitem";
+    const num = document.createElement("div"); num.className = "num"; num.textContent = i+1;
+    const t = document.createElement("div"); t.className = "txt"; t.textContent = txt;
+    row.appendChild(num); row.appendChild(t);
+    wrap.appendChild(row);
+  });
+  const info = TABS.find(t=>t.id===id);
+  return sectionShell(`📖 Guía — ${info ? info.label : ""}`, "Paso a paso", wrap);
+}
+
+const btnGuideToggle = document.getElementById("btnGuideToggle");
+btnGuideToggle.addEventListener("click", ()=>{
+  guideMode = !guideMode;
+  btnGuideToggle.textContent = guideMode ? "📋 Volver al registro" : "📖 Ver guía";
+  btnGuideToggle.classList.toggle("active", guideMode);
+  document.querySelector(".actions").style.display = guideMode ? "none" : "flex";
+  render();
+});
+
+/* ---------- Render ---------- */
+const mainEl = document.getElementById("main");
+
+function render(){
+  [...tabsEl.children].forEach((b,i)=> b.classList.toggle("active", i===currentTab));
+  mainEl.innerHTML = "";
+
+  if(guideMode){
+    mainEl.appendChild(renderGuideSection(TABS[currentTab].id));
+    return;
+  }
+
+  if(isViewMode){
+    const banner = document.createElement("div");
+    banner.style.cssText = "background:#FFF2CC;border:1px solid #C98A2C;color:#5c4415;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12.5px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;";
+    banner.innerHTML = `<span>🔒 <b>Solo lectura</b> — estás viendo una bitácora guardada, no se puede editar.</span>`;
+    const bExit = document.createElement("button");
+    bExit.textContent = "Salir de la vista";
+    bExit.style.cssText = "border:none;background:#C98A2C;color:#2b1c04;font-weight:700;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;";
+    bExit.addEventListener("click", ()=>{ isViewMode=false; renderHistory(); });
+    banner.appendChild(bExit);
+    mainEl.appendChild(banner);
+  }
+  mainEl.appendChild(renderSection(TABS[currentTab].id));
+}
+
+function sectionShell(title, sub, bodyEl){
+  const s = document.createElement("section");
+  s.className = "card active";
+  const head = document.createElement("div");
+  head.className = "head";
+  head.innerHTML = `<span>${title}</span>${sub ? `<small>${sub}</small>`:""}`;
+  const body = document.createElement("div");
+  body.className = "body";
+  body.appendChild(bodyEl);
+  s.appendChild(head); s.appendChild(body);
+  return s;
+}
+
+/* ---------- Teclado numérico tipo diálogo (para campos numéricos especiales) ---------- */
+function openNumericKeypad(labelText, initialValue, onAccept){
+  let val = String(initialValue || "");
+  const overlay = document.createElement("div"); overlay.className = "numpad-overlay";
+  const card = document.createElement("div"); card.className = "numpad-card";
+
+  const title = document.createElement("div"); title.className = "numpad-title"; title.textContent = labelText;
+  const display = document.createElement("div"); display.className = "numpad-display"; display.textContent = val || "0";
+  card.appendChild(title); card.appendChild(display);
+
+  const grid = document.createElement("div"); grid.className = "numpad-grid";
+  const keys = ["1","2","3","4","5","6","7","8","9","","0","⌫"];
+  keys.forEach(k=>{
+    const b = document.createElement("button");
+    if(k === ""){ b.classList.add("ghost"); }
+    else {
+      b.textContent = k;
+      b.addEventListener("click", ()=>{
+        val = (k === "⌫") ? val.slice(0,-1) : (val + k);
+        display.textContent = val || "0";
+      });
+    }
+    grid.appendChild(b);
+  });
+  card.appendChild(grid);
+
+  const actions = document.createElement("div"); actions.className = "numpad-actions";
+  const bCancel = document.createElement("button"); bCancel.textContent = "Cancelar";
+  bCancel.addEventListener("click", ()=> overlay.remove());
+  const bOk = document.createElement("button"); bOk.textContent = "Aceptar";
+  bOk.addEventListener("click", ()=>{ onAccept(val); overlay.remove(); });
+  actions.appendChild(bCancel); actions.appendChild(bOk);
+  card.appendChild(actions);
+
+  overlay.appendChild(card);
+  overlay.addEventListener("click", e=>{ if(e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+}
+
+/* Campo que abre el teclado numérico en vez del teclado normal del celular */
+function fieldNumericPicker(labelText, value, onChange){
+  const wrap = document.createElement("div"); wrap.className = "field";
+  const lab = document.createElement("label"); lab.textContent = labelText;
+  const inp = document.createElement("input");
+  inp.type = "text"; inp.readOnly = true; inp.className = "numpad-input";
+  inp.value = value || "";
+  inp.addEventListener("click", ()=>{
+    if(isViewMode) return;
+    openNumericKeypad(labelText, inp.value, (newVal)=>{ inp.value = newVal; onChange(newVal); });
+  });
+  if(isViewMode) inp.disabled = true;
+  wrap.appendChild(lab); wrap.appendChild(inp);
+  return wrap;
+}
+
+/* field(): type puede ser "text","date","time"; mode puede ser "numeric" (solo dígitos, teclado numérico)
+   o "decimal" (teclado numérico con punto decimal) */
+function field(labelText, value, onChange, type="text", mode=null){
+  const wrap = document.createElement("div");
+  wrap.className = "field";
+  const lab = document.createElement("label"); lab.textContent = labelText;
+  const inp = document.createElement("input");
+  inp.type = type; inp.value = value || "";
+  if(mode){
+    inp.setAttribute("inputmode", mode);
+    if(mode === "numeric") inp.setAttribute("pattern", "[0-9]*");
+  }
+  inp.addEventListener("input", e=>{
+    let v = e.target.value;
+    if(mode === "numeric"){ v = v.replace(/[^0-9]/g, ""); e.target.value = v; }
+    onChange(v);
+  });
+  if(isViewMode){ inp.disabled = true; inp.style.background = "#f0ede4"; inp.style.color = "#666"; }
+  wrap.appendChild(lab); wrap.appendChild(inp);
+  return wrap;
+}
+
+/* Input numérico compacto para celdas de tabla (teclado numérico en móvil) */
+function numCellInput(value, onChange, mode="decimal"){
+  const inp = document.createElement("input");
+  inp.type = "text";
+  inp.setAttribute("inputmode", mode);
+  if(mode === "numeric") inp.setAttribute("pattern", "[0-9]*");
+  inp.value = value || "";
+  inp.addEventListener("input", e=>{
+    let v = e.target.value;
+    v = mode === "numeric" ? v.replace(/[^0-9]/g,"") : v.replace(/[^0-9.\-]/g,"");
+    e.target.value = v;
+    onChange(v);
+  });
+  if(isViewMode){ inp.disabled = true; inp.style.background = "#f0ede4"; inp.style.color = "#666"; }
+  return inp;
+}
+
+/* --- Header --- */
+function renderHeaderTab(){
+  const grid = document.createElement("div"); grid.className = "grid";
+  grid.appendChild(field("Asociación", state.header.asociacion, v=>state.header.asociacion=v));
+  grid.appendChild(field("Fecha", state.header.fecha, v=>state.header.fecha=v, "date"));
+  grid.appendChild(fieldNumericPicker("No. de operación / lote", state.header.lote, v=>state.header.lote=v));
+  grid.appendChild(field("Turno", state.header.turno, v=>state.header.turno=v));
+  const hi = field("Hora inicio", state.header.horaInicio, v=>state.header.horaInicio=v, "time");
+  hi.classList.add("span2");
+  grid.appendChild(hi);
+  return sectionShell("Datos generales", "F-PP-05", grid);
+}
+
+/* --- Personal --- */
+function renderPersonalTab(){
+  const wrap = document.createElement("div"); wrap.className = "wrap-x";
+  const t = document.createElement("table"); t.className = "tbl";
+  t.innerHTML = `<thead><tr><th style="width:34%">Rol</th><th>Nombre / contacto</th><th>Contacto de emergencia</th></tr></thead>`;
+  const tb = document.createElement("tbody");
+  state.personal.forEach((p, i)=>{
+    const tr = document.createElement("tr");
+    const tdRol = document.createElement("td"); tdRol.className="label-cell"; tdRol.textContent = p.rol;
+    const tdNombre = document.createElement("td");
+    const inN = document.createElement("input"); inN.value = p.nombre; inN.style.textAlign="left";
+    inN.addEventListener("input", e=> state.personal[i].nombre = e.target.value);
+    if(isViewMode) inN.disabled = true;
+    tdNombre.appendChild(inN);
+    const tdEm = document.createElement("td");
+    const inE = document.createElement("input"); inE.value = p.emergencia; inE.style.textAlign="left";
+    inE.addEventListener("input", e=> state.personal[i].emergencia = e.target.value);
+    if(isViewMode) inE.disabled = true;
+    tdEm.appendChild(inE);
+    tr.appendChild(tdRol); tr.appendChild(tdNombre); tr.appendChild(tdEm);
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb); wrap.appendChild(t);
+  return sectionShell("Personal de turno", null, wrap);
+}
+
+/* --- Preliminares (botones SÍ/NO más grandes) --- */
+function renderPreliminaresTab(){
+  const wrap = document.createElement("div");
+  PRELIMINARES.forEach((txt, i)=>{
+    const row = document.createElement("div"); row.className = "checkitem";
+    const num = document.createElement("div"); num.className = "num"; num.textContent = i+1;
+    const t = document.createElement("div"); t.className = "txt"; t.textContent = txt;
+    const yn = document.createElement("div"); yn.className = "yn";
+    const bSi = document.createElement("button"); bSi.className = "si" + (state.preliminares[i]==="si"?" on":""); bSi.textContent="SÍ";
+    const bNo = document.createElement("button"); bNo.className = "no" + (state.preliminares[i]==="no"?" on":""); bNo.textContent="NO";
+    bSi.addEventListener("click", ()=>{ if(isViewMode) return; state.preliminares[i] = state.preliminares[i]==="si"?null:"si"; render(); });
+    bNo.addEventListener("click", ()=>{ if(isViewMode) return; state.preliminares[i] = state.preliminares[i]==="no"?null:"no"; render(); });
+    if(isViewMode){ bSi.disabled = true; bNo.disabled = true; }
+    yn.appendChild(bSi); yn.appendChild(bNo);
+    row.appendChild(num); row.appendChild(t); row.appendChild(yn);
+    wrap.appendChild(row);
+  });
+  const hint = document.createElement("div"); hint.className="hint";
+  hint.textContent = "Ficha de referencia: PO-PP-01 (cebado de bomba: PO-PP-05)";
+  wrap.appendChild(hint);
+  return sectionShell("Verificación de preliminares", "Ficha PO-PP-01", wrap);
+}
+
+/* --- Autorización --- */
+function renderAutorizacionTab(){
+  const wrap = document.createElement("div");
+  const row = document.createElement("div"); row.className = "checkitem";
+  const t = document.createElement("div"); t.className="txt"; t.textContent = "¿Cumple para autorizar arranque?";
+  const yn = document.createElement("div"); yn.className="yn";
+  const bSi = document.createElement("button"); bSi.className="si"+(state.autorizacion.cumple==="si"?" on":""); bSi.textContent="SÍ";
+  const bNo = document.createElement("button"); bNo.className="no"+(state.autorizacion.cumple==="no"?" on":""); bNo.textContent="NO";
+  bSi.addEventListener("click", ()=>{ if(isViewMode) return; state.autorizacion.cumple = state.autorizacion.cumple==="si"?null:"si"; render(); });
+  bNo.addEventListener("click", ()=>{ if(isViewMode) return; state.autorizacion.cumple = state.autorizacion.cumple==="no"?null:"no"; render(); });
+  if(isViewMode){ bSi.disabled = true; bNo.disabled = true; }
+  yn.appendChild(bSi); yn.appendChild(bNo);
+  row.appendChild(t); row.appendChild(yn);
+  wrap.appendChild(row);
+
+  const grid = document.createElement("div"); grid.className="grid"; grid.style.marginTop="12px";
+  grid.appendChild(field("Hora de autorización", state.autorizacion.hora, v=>state.autorizacion.hora=v, "time"));
+  const obs = document.createElement("div"); obs.className="field span2";
+  const lab = document.createElement("label"); lab.textContent = "Observaciones / hallazgos";
+  const ta = document.createElement("textarea"); ta.value = state.autorizacion.obs;
+  ta.addEventListener("input", e=> state.autorizacion.obs = e.target.value);
+  if(isViewMode) ta.disabled = true;
+  obs.appendChild(lab); obs.appendChild(ta);
+  grid.appendChild(obs);
+  wrap.appendChild(grid);
+
+  return sectionShell("Autorización de arranque", null, wrap);
+}
+
+/* --- Registro de proceso: celdas compactas, teclado numérico, selector kg/carga --- */
+function renderProcesoTab(){
+  const wrap = document.createElement("div"); wrap.className="wrap-x";
+  const t = document.createElement("table"); t.className="tbl compact";
+  t.innerHTML = `<thead><tr><th style="width:36%">Variable</th><th>Inicio</th><th>Medio</th><th>Fin</th></tr></thead>`;
+  const tb = document.createElement("tbody");
+  PROCESO_VARS.forEach((label,i)=>{
+    const tr = document.createElement("tr");
+    const tdL = document.createElement("td"); tdL.className="label-cell";
+    if(i === 0){
+      // Caña procesada: texto + selector de unidad kg / carga
+      const span = document.createElement("span"); span.textContent = label;
+      const sel = document.createElement("select"); sel.className = "unit-select";
+      ["kg","carga"].forEach(u=>{
+        const opt = document.createElement("option"); opt.value = u; opt.textContent = u === "kg" ? "kg" : "carga";
+        if(state.unidadCana === u) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      sel.addEventListener("change", e=> state.unidadCana = e.target.value);
+      if(isViewMode) sel.disabled = true;
+      tdL.appendChild(span); tdL.appendChild(sel);
+    } else {
+      tdL.textContent = label;
+    }
+    tr.appendChild(tdL);
+    ["inicio","medio","fin"].forEach(k=>{
+      const td = document.createElement("td");
+      const inp = numCellInput(state.proceso[i][k], v=> state.proceso[i][k]=v, "decimal");
+      td.appendChild(inp); tr.appendChild(td);
+    });
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb); wrap.appendChild(t);
+  return sectionShell("Registro de proceso", "Molienda, jugo y clarificación", wrap);
+}
+
+/* --- Genérica por equipo (Vapor / Toma de punto / Producto): celdas compactas + teclado numérico --- */
+function renderByEquipmentTab(title, sub, vars, dataArr){
+  const wrap = document.createElement("div"); wrap.className="wrap-x";
+  const t = document.createElement("table"); t.className="tbl compact";
+  t.innerHTML = `<thead><tr><th style="width:34%">Variable</th>${EQUIPOS.map(e=>`<th>${e}</th>`).join("")}</tr></thead>`;
+  const tb = document.createElement("tbody");
+  vars.forEach((label,i)=>{
+    const tr = document.createElement("tr");
+    const tdL = document.createElement("td"); tdL.className="label-cell"; tdL.textContent = label;
+    tr.appendChild(tdL);
+    EQUIPOS.forEach((eq,j)=>{
+      const td = document.createElement("td");
+      const inp = numCellInput(dataArr[i][j], v=> dataArr[i][j]=v, "decimal");
+      td.appendChild(inp); tr.appendChild(td);
+    });
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb); wrap.appendChild(t);
+  return sectionShell(title, sub, wrap);
+}
+
+/* --- Novedades --- */
+function renderNovedadesTab(){
+  const wrap = document.createElement("div"); wrap.className="field";
+  const ta = document.createElement("textarea"); ta.style.minHeight="180px";
+  ta.value = state.novedades;
+  ta.placeholder = "Describa incidentes, novedades u observaciones del turno...";
+  ta.addEventListener("input", e=> state.novedades = e.target.value);
+  if(isViewMode) ta.disabled = true;
+  wrap.appendChild(ta);
+  return sectionShell("Novedades / incidentes / observaciones", null, wrap);
+}
+
+/* --- Cierre --- */
+function renderCierreTab(){
+  const wrap = document.createElement("div"); wrap.className="grid";
+  wrap.appendChild(field("Hora fin", state.cierre.horaFin, v=>state.cierre.horaFin=v, "time"));
+  wrap.appendChild(field("Firma responsable de operación", state.cierre.firmaOperacion, v=>state.cierre.firmaOperacion=v));
+  const vb = field("Visto bueno jefe de planta", state.cierre.vistoBueno, v=>state.cierre.vistoBueno=v);
+  vb.classList.add("span2");
+  wrap.appendChild(vb);
+  return sectionShell("Cierre de turno", null, wrap);
+}
+
+function renderSection(id){
+  switch(id){
+    case "header": return renderHeaderTab();
+    case "personal": return renderPersonalTab();
+    case "preliminares": return renderPreliminaresTab();
+    case "autorizacion": return renderAutorizacionTab();
+    case "proceso": return renderProcesoTab();
+    case "vapor": return renderByEquipmentTab("Vapor y concentradores", "Por equipo", VAPOR_VARS, state.vapor);
+    case "punto": return renderByEquipmentTab("Toma de punto", "Por concentrador", PUNTO_VARS, state.punto);
+    case "producto": return renderByEquipmentTab("Producto obtenido", "Por concentrador", PRODUCTO_ROWS, state.producto);
+    case "novedades": return renderNovedadesTab();
+    case "cierre": return renderCierreTab();
+  }
+}
+
+/* ---------- Toast ---------- */
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> t.classList.remove("show"), 2200);
+}
+
+/* ---------- Actions ---------- */
+document.getElementById("btnNew").addEventListener("click", ()=>{
+  if(isViewMode){
+    isViewMode = false; state = blankState(); currentTab = 0; render();
+    showToast("Bitácora nueva iniciada");
+    return;
+  }
+  if(confirm("¿Iniciar una bitácora nueva? Se perderán los cambios no guardados.")){
+    state = blankState(); currentTab = 0; render();
+    showToast("Bitácora nueva iniciada");
+  }
+});
+
+document.getElementById("btnSave").addEventListener("click", ()=>{
+  if(isViewMode){ showToast("🔒 Solo lectura: no se puede guardar"); return; }
+  const list = loadAll();
+  if(!state.id) state.id = "b_" + Date.now();
+  const idx = list.findIndex(r=>r.id===state.id);
+  state.savedAt = new Date().toISOString();
+  if(idx>=0) list[idx] = state; else list.push(state);
+  saveAll(list);
+  showToast("Bitácora guardada");
+});
+
+document.getElementById("btnHistory").addEventListener("click", renderHistory);
+
+function renderHistory(){
+  const list = loadAll().slice().sort((a,b)=> (b.savedAt||"").localeCompare(a.savedAt||""));
+  mainEl.innerHTML = "";
+  const s = document.createElement("section"); s.className="card active";
+  const head = document.createElement("div"); head.className="head";
+  head.innerHTML = `<span>Historial de bitácoras</span><small>${list.length} registro(s)</small>`;
+  const body = document.createElement("div"); body.className="body";
+
+  if(list.length===0){
+    const es = document.createElement("div"); es.className="empty-state";
+    es.textContent = "Todavía no hay bitácoras guardadas en este dispositivo.";
+    body.appendChild(es);
+  } else {
+    list.forEach(rec=>{
+      const item = document.createElement("div"); item.className="history-item";
+      const info = document.createElement("div"); info.className="info";
+      const title = `${rec.header.asociacion || "Sin asociación"} · Lote ${rec.header.lote || "-"}`;
+      const sub = `${rec.header.fecha || "sin fecha"} · Turno ${rec.header.turno || "-"}`;
+      info.innerHTML = `<b>${title}</b><span>${sub}</span>`;
+      const btns = document.createElement("div"); btns.className="btns";
+      const bLoad = document.createElement("button"); bLoad.className="load-btn"; bLoad.textContent="Ver";
+      bLoad.addEventListener("click", ()=>{ state = rec; isViewMode = true; currentTab = 0; render(); showToast("Viendo bitácora (solo lectura)"); });
+      const bDel = document.createElement("button"); bDel.className="del-btn"; bDel.textContent="Eliminar";
+      bDel.addEventListener("click", ()=>{
+        if(confirm("¿Eliminar esta bitácora guardada?")){
+          saveAll(loadAll().filter(r=>r.id!==rec.id));
+          renderHistory();
+        }
+      });
+      btns.appendChild(bLoad); btns.appendChild(bDel);
+      item.appendChild(info); item.appendChild(btns);
+      body.appendChild(item);
+    });
+
+    const pdfRow = document.createElement("div");
+    pdfRow.style.cssText = "border:1px solid var(--line);border-radius:8px;padding:10px;margin-top:4px;background:#fffdf9;";
+    pdfRow.innerHTML = `<label style="font-size:11.5px;color:var(--ink-soft);font-weight:600;">Elige el día que quieres ver en el PDF</label>`;
+    const dateRow = document.createElement("div");
+    dateRow.style.cssText = "display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;";
+    const dateInput = document.createElement("input");
+    dateInput.type = "date"; dateInput.style.flex = "1"; dateInput.style.minWidth = "140px";
+    // por defecto, la fecha de la bitácora más reciente
+    dateInput.value = list[0].header.fecha || "";
+    const bPdfDay = document.createElement("button");
+    bPdfDay.className = "btn-pdf"; bPdfDay.textContent = "📄 Descargar PDF de ese día";
+    bPdfDay.style.flex = "1"; bPdfDay.style.minWidth = "160px";
+    bPdfDay.addEventListener("click", ()=>{
+      const d = dateInput.value;
+      if(!d){ showToast("Elige primero una fecha"); return; }
+      const filtered = list.filter(r => r.header.fecha === d);
+      if(filtered.length === 0){ showToast("No hay bitácoras guardadas en esa fecha"); return; }
+      downloadPdf(filtered, d);
+    });
+    dateRow.appendChild(dateInput); dateRow.appendChild(bPdfDay);
+    pdfRow.appendChild(dateRow);
+    body.appendChild(pdfRow);
+
+    const actionsRow = document.createElement("div"); actionsRow.className = "hist-actions";
+    const bCsv = document.createElement("button"); bCsv.className="btn-secondary"; bCsv.textContent="🧾 Exportar todo a CSV";
+    bCsv.addEventListener("click", exportCSV);
+    actionsRow.appendChild(bCsv);
+    body.appendChild(actionsRow);
+
+    const chartsWrap = document.createElement("div");
+    const labels = list.slice().reverse().map(recLabel);
+    const prod = list.slice().reverse().map(totalProducto);
+    const brix = list.slice().reverse().map(brixFin);
+    const cump = list.slice().reverse().map(cumplimientoPct);
+    chartsWrap.appendChild(chartBox("Producción total por bitácora (kg)", labels, prod, "#C98A2C"));
+    chartsWrap.appendChild(chartBox("Grados Brix — clarificación (fin)", labels, brix, "#1F3864"));
+    chartsWrap.appendChild(chartBox("Cumplimiento de preliminares (%)", labels, cump, "#3F6B4A"));
+    body.appendChild(chartsWrap);
+  }
+
+  s.appendChild(head); s.appendChild(body);
+  mainEl.appendChild(s);
+}
+
+/* ---------- Cálculos para resumen / gráficas ---------- */
+function totalProducto(rec){
+  const idx = PRODUCTO_ROWS.length - 1; // "Cantidad total (kg o cajas)"
+  return rec.producto[idx].reduce((s,v)=> s + (parseFloat(v)||0), 0);
+}
+function brixFin(rec){
+  const idx = 3; // Clarificación — grados Brix
+  return parseFloat(rec.proceso[idx].fin) || 0;
+}
+function preliminaresSiCount(rec){
+  return rec.preliminares.filter(v=>v==="si").length;
+}
+function cumplimientoPct(rec){
+  const total = rec.preliminares.length;
+  const si = preliminaresSiCount(rec);
+  return total ? Math.round((si/total)*100) : 0;
+}
+function recLabel(rec){
+  return rec.header.lote || rec.header.fecha || "s/f";
+}
+
+/* ---------- Gráfica de barras simple (canvas) ---------- */
+function chartBox(title, labels, values, color){
+  const box = document.createElement("div"); box.className="chart-box";
+  const h3 = document.createElement("h3"); h3.textContent = title;
+  const canvas = document.createElement("canvas"); canvas.className="chart";
+  canvas.width = 640; canvas.height = 200;
+  box.appendChild(h3); box.appendChild(canvas);
+  drawBars(canvas, labels, values, color);
+  return box;
+}
+function drawBars(canvas, labels, values, color){
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const padL=38, padB=30, padT=12, padR=12;
+  const chartW = W-padL-padR, chartH = H-padT-padB;
+  const maxV = Math.max(1, ...values);
+  const n = Math.max(values.length,1);
+  const gap = chartW / n;
+  const barW = Math.max(6, gap*0.6);
+
+  ctx.strokeStyle = "#D8D2C4"; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(padL,padT); ctx.lineTo(padL,H-padB); ctx.lineTo(W-padR,H-padB); ctx.stroke();
+
+  ctx.fillStyle="#655f50"; ctx.font="10px sans-serif"; ctx.textAlign="right";
+  for(let i=0;i<=4;i++){
+    const y = padT + chartH - (chartH*i/4);
+    const val = Math.round(maxV*i/4);
+    ctx.strokeStyle="#eee"; ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(W-padR,y); ctx.stroke();
+    ctx.fillText(val, padL-6, y+3);
+  }
+  values.forEach((v,i)=>{
+    const x = padL + gap*i + (gap-barW)/2;
+    const h = (v/maxV)*chartH;
+    const y = padT + chartH - h;
+    ctx.fillStyle = color;
+    ctx.fillRect(x,y,barW,h);
+  });
+  ctx.fillStyle="#655f50"; ctx.font="9px sans-serif"; ctx.textAlign="center";
+  labels.forEach((lab,i)=>{
+    const x = padL + gap*i + gap/2;
+    ctx.fillText(String(lab).slice(0,8), x, H-padB+13);
+  });
+  if(values.length===0){
+    ctx.fillStyle="#999"; ctx.textAlign="center"; ctx.font="12px sans-serif";
+    ctx.fillText("Sin datos", W/2, H/2);
+  }
+}
+
+/* ---------- PDF: resumen simple, con colores y gráficas ---------- */
+function downloadPdf(list, dateLabel){
+  const printArea = document.getElementById("printArea");
+  const labelsAsc = list.slice().reverse().map(recLabel);
+  const prodAsc = list.slice().reverse().map(totalProducto);
+  const brixAsc = list.slice().reverse().map(brixFin);
+  const cumpAsc = list.slice().reverse().map(cumplimientoPct);
+
+  const c1 = document.createElement("canvas"); c1.width=640; c1.height=200; drawBars(c1, labelsAsc, prodAsc, "#C98A2C");
+  const c2 = document.createElement("canvas"); c2.width=640; c2.height=200; drawBars(c2, labelsAsc, brixAsc, "#1F3864");
+  const c3 = document.createElement("canvas"); c3.width=640; c3.height=200; drawBars(c3, labelsAsc, cumpAsc, "#3F6B4A");
+
+  const totalProd = prodAsc.reduce((a,b)=>a+b,0);
+  const promCump = cumpAsc.length ? Math.round(cumpAsc.reduce((a,b)=>a+b,0)/cumpAsc.length) : 0;
+
+  const cardsHtml = list.map(r=>{
+    const cump = cumplimientoPct(r);
+    const si = preliminaresSiCount(r);
+    const total = r.preliminares.length;
+    const cumpColor = cump===100 ? "#3F6B4A" : (cump>=70 ? "#C98A2C" : "#A63A3A");
+    const autoriz = r.autorizacion.cumple;
+    const autorizTxt = autoriz==="si" ? "SÍ autorizado" : (autoriz==="no" ? "NO autorizado" : "Sin registrar");
+    const autorizColor = autoriz==="si" ? "#3F6B4A" : (autoriz==="no" ? "#A63A3A" : "#999");
+    return `
+      <div style="border:1px solid #D8D2C4;border-radius:8px;padding:10px 12px;margin-bottom:10px;page-break-inside:avoid;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;">
+          <b style="font-size:14px;color:#1F3864;">${r.header.asociacion || "Sin asociación"} — Lote ${r.header.lote || "-"}</b>
+          <span style="font-size:11px;color:#655f50;">${r.header.fecha || "sin fecha"} · Turno ${r.header.turno || "-"}</span>
+        </div>
+        <div style="display:flex;gap:18px;margin-top:8px;flex-wrap:wrap;font-size:12px;">
+          <div>Arranque: <b style="color:${autorizColor};">${autorizTxt}</b></div>
+          <div>Preliminares cumplidos: <b style="color:${cumpColor};">${si} de ${total} (${cump}%)</b></div>
+          <div>Producción total: <b style="color:#1F3864;">${totalProducto(r).toFixed(1)} kg</b></div>
+          <div>Brix final: <b>${brixFin(r) || "-"}</b></div>
+        </div>
+        ${r.novedades ? `<div style="margin-top:6px;font-size:11.5px;color:#655f50;"><b>Novedades:</b> ${r.novedades.slice(0,180)}${r.novedades.length>180?"…":""}</div>` : ""}
+      </div>`;
+  }).join("");
+
+  printArea.innerHTML = `
+    <h1>Bitácora de Operación de Planta — ${dateLabel ? `Día ${dateLabel}` : "Resumen"} (F-PP-05)</h1>
+    <p style="font-size:12px;color:#655f50;">Generado: ${new Date().toLocaleString()}</p>
+
+    <div style="display:flex; gap:16px; margin:14px 0 18px; flex-wrap:wrap;">
+      <div style="flex:1; min-width:150px; border:1px solid #D8D2C4; border-radius:8px; padding:12px; text-align:center;">
+        <div style="font-size:11px;color:#655f50;">Bitácoras registradas</div>
+        <div style="font-size:26px;font-weight:800;color:#1F3864;">${list.length}</div>
+      </div>
+      <div style="flex:1; min-width:150px; border:1px solid #D8D2C4; border-radius:8px; padding:12px; text-align:center;">
+        <div style="font-size:11px;color:#655f50;">Producción total</div>
+        <div style="font-size:26px;font-weight:800;color:#C98A2C;">${totalProd.toFixed(1)} kg</div>
+      </div>
+      <div style="flex:1; min-width:150px; border:1px solid #D8D2C4; border-radius:8px; padding:12px; text-align:center;">
+        <div style="font-size:11px;color:#655f50;">Cumplimiento promedio</div>
+        <div style="font-size:26px;font-weight:800;color:${promCump===100?'#3F6B4A':(promCump>=70?'#C98A2C':'#A63A3A')};">${promCump}%</div>
+      </div>
+    </div>
+
+    <h2 style="font-size:14px;color:#1F3864;">Detalle por bitácora</h2>
+    ${cardsHtml}
+
+    <h2 style="font-size:14px;color:#1F3864;margin-top:16px;">Producción total por bitácora (kg)</h2>
+    <img class="chart-img" src="${c1.toDataURL('image/png')}">
+    <h2 style="font-size:14px;color:#1F3864;">Grados Brix — clarificación (fin)</h2>
+    <img class="chart-img" src="${c2.toDataURL('image/png')}">
+    <h2 style="font-size:14px;color:#1F3864;">Cumplimiento de preliminares (%)</h2>
+    <img class="chart-img" src="${c3.toDataURL('image/png')}">
+  `;
+  showToast("Abriendo vista de impresión…");
+  setTimeout(()=> window.print(), 200);
+}
+
+/* ---------- Export CSV ---------- */
+function csvEscape(v){
+  v = (v===undefined || v===null) ? "" : String(v);
+  if(/[",\n;]/.test(v)) return '"' + v.replace(/"/g,'""') + '"';
+  return v;
+}
+
+function exportCSV(){
+  const list = loadAll();
+  if(list.length===0){ showToast("No hay bitácoras para exportar"); return; }
+  const rows = [];
+  rows.push(["Asociacion","Fecha","Lote","Turno","HoraInicio","UnidadCana","AutorizCumple","HoraAutoriz","Novedades","HoraFin","FirmaOperacion","VistoBueno"]);
+  list.forEach(r=>{
+    rows.push([
+      r.header.asociacion, r.header.fecha, r.header.lote, r.header.turno, r.header.horaInicio,
+      r.unidadCana || "kg",
+      r.autorizacion.cumple, r.autorizacion.hora, r.novedades,
+      r.cierre.horaFin, r.cierre.firmaOperacion, r.cierre.vistoBueno
+    ]);
+  });
+  const csv = rows.map(r=>r.map(csvEscape).join(",")).join("\n");
+  const blob = new Blob(["\uFEFF"+csv], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "bitacoras_pp05.csv";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast("CSV exportado");
+}
+
+/* ---------- Init ---------- */
+render();
+
+})();
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
